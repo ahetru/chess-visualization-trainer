@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres:16
+    container_name: innerchess-db
+    environment:
+      POSTGRES_DB: innerchess
+      POSTGRES_USER: innerchess
+      POSTGRES_PASSWORD: innerchess
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ../backend
+    container_name: innerchess-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/innerchess
+      SPRING_DATASOURCE_USERNAME: innerchess
+      SPRING_DATASOURCE_PASSWORD: innerchess
+
+  frontend:
+    build: ../frontend
+    container_name: innerchess-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  adminer:
+    image: adminer
+    container_name: innerchess-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
