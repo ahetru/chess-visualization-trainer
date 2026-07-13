@@ -71,6 +71,9 @@ pnpm-debug.log*
 ########################################
 .vscode/
 .idea/
+.classpath
+.project
+.settings/
 
 ########################################
 # OS files
