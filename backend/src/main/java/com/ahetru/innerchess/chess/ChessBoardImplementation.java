@@ -2,9 +2,9 @@ package com.ahetru.innerchess.chess;
 import org.springframework.stereotype.Component;
 
 import com.github.bhlangonijr.chesslib.Board;
-import com.github.bhlangonijr.chesslib.Square;
-import com.github.bhlangonijr.chesslib.Side;
 import com.github.bhlangonijr.chesslib.Piece;
+import com.github.bhlangonijr.chesslib.Side;
+import com.github.bhlangonijr.chesslib.Square;
 import com.github.bhlangonijr.chesslib.move.Move;
 
 @Component
@@ -45,7 +45,13 @@ public class ChessBoardImplementation implements ChessBoard {
 
         try {
             Move move = uciStringToMove(board, uciString);
-            return board.isMoveLegal(move, true);
+            for (Move legalMove : board.legalMoves()) {
+                if (legalMove.equals(move)) {
+                    return true;
+                }
+            }
+            return false;
+            //return board.isMoveLegal(move, true);
         } catch (IllegalArgumentException e) {
             return false;
         }

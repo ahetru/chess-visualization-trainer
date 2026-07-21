@@ -4,6 +4,11 @@
 
 COMPOSE=infra/docker-compose.yml
 
+.PHONY: up down stop logs ps rebuild clean \
+	backend-build backend-test backend-run \
+	frontend-install frontend-dev frontend-build frontend-test \
+	dev db-reset test
+
 # -------------------------
 # DOCKER
 # -------------------------
@@ -34,13 +39,13 @@ clean:
 # -------------------------
 
 backend-build:
-	cd backend && mvn clean package
+	cd backend && ./mvnw clean package
 
-backend-test:
-	cd backend && mvn test
+backend-test: db-up
+	cd backend && ./mvnw test
 
 backend-run:
-	cd backend && mvn spring-boot:run
+	cd backend && ./mvnw spring-boot:run
 
 # -------------------------
 # FRONTEND
@@ -63,7 +68,7 @@ frontend-test:
 # -------------------------
 
 dev:
-	make backend-run & make frontend-dev
+	$(MAKE) backend-run & $(MAKE) frontend-dev
 
 # -------------------------
 # DATABASE
@@ -71,12 +76,15 @@ dev:
 
 db-reset:
 	docker compose -f $(COMPOSE) down -v
-	docker compose -f $(COMPOSE) up db
+	docker compose -f $(COMPOSE) up -d db
+
+db-up:
+	docker compose -f $(COMPOSE) up -d db
 
 # -------------------------
 # FULL TEST
 # -------------------------
 
 test:
-	make backend-test
-	make frontend-test
+	$(MAKE) backend-test
+	$(MAKE) frontend-test
