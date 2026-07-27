@@ -32,4 +32,14 @@ public class Puzzle {
         this.themes = themes;
         this.gameUrl = gameUrl;
     }
+
+    public String getId() {return id;}
+    public String getFen() {return fen;}
+    public String getMoves() {return moves;}
+    public int getRating() {return rating;}
+    public Integer getRatingDeviation() {return ratingDeviation;}
+    public Integer getPopularity() {return popularity;}
+    public Integer getNbPlays() {return nbPlays;}
+    public String getThemes() {return themes;}
+    public String getGameUrl() {return gameUrl;}
 }
