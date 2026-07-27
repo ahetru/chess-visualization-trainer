@@ -1,0 +1,32 @@
+package com.ahetru.innerchess.chess.puzzle.domain;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "puzzles")
+public class Puzzle {
+    @Id
+    private String id;
+    private String fen;
+    private String moves;
+    private int rating;
+    private Integer ratingDeviation;
+    private Integer popularity;
+    private Integer nbPlays;
+    private String Themes;
+    private String gameUrl;
+
+    public Puzzle(String id, String fen, String moves, int rating, Integer ratingDeviation, Integer popularity, Integer nbPlays, String themes, String gameUrl) {
+        this.id = id;
+        this.fen = fen;
+        this.moves = moves;
+        this.rating = rating;
+        this.ratingDeviation = ratingDeviation;
+        this.popularity = popularity;
+        this.nbPlays = nbPlays;
+        Themes = themes;
+        this.gameUrl = gameUrl;
+    }
+}
