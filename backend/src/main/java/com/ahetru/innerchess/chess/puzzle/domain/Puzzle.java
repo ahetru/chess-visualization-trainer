@@ -15,8 +15,11 @@ public class Puzzle {
     private Integer ratingDeviation;
     private Integer popularity;
     private Integer nbPlays;
-    private String Themes;
+    private String themes;
     private String gameUrl;
+
+    public Puzzle() {
+    }
 
     public Puzzle(String id, String fen, String moves, int rating, Integer ratingDeviation, Integer popularity, Integer nbPlays, String themes, String gameUrl) {
         this.id = id;
@@ -26,7 +29,7 @@ public class Puzzle {
         this.ratingDeviation = ratingDeviation;
         this.popularity = popularity;
         this.nbPlays = nbPlays;
-        Themes = themes;
+        this.themes = themes;
         this.gameUrl = gameUrl;
     }
 }
