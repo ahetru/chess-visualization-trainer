@@ -4,11 +4,6 @@
 
 COMPOSE=infra/docker-compose.yml
 
-.PHONY: up down stop logs ps rebuild clean \
-	backend-build backend-test backend-run \
-	frontend-install frontend-dev frontend-build frontend-test \
-	dev db-reset test
-
 # -------------------------
 # DOCKER
 # -------------------------
@@ -82,9 +77,26 @@ db-up:
 	docker compose -f $(COMPOSE) up -d db
 
 # -------------------------
+# PUZZLE IMPORT
+# -------------------------
+
+CSV_PATH ?= backend/data/lichess_puzzles.csv
+PUZZLE_COUNT ?= 500
+
+import-puzzles: db-up
+	cd backend && ./mvnw spring-boot:run \
+		-Dspring-boot.run.profiles=import-puzzles \
+		-Dspring-boot.run.arguments="$(CSV_PATH) $(PUZZLE_COUNT)"
+
+# -------------------------
 # FULL TEST
 # -------------------------
 
 test:
 	$(MAKE) backend-test
 	$(MAKE) frontend-test
+
+.PHONY: up down stop logs ps rebuild clean \
+	backend-build backend-test backend-run \
+	frontend-install frontend-dev frontend-build frontend-test \
+	dev db-reset test import-puzzles
