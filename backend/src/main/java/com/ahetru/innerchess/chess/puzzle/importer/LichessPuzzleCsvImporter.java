@@ -58,16 +58,16 @@ public class LichessPuzzleCsvImporter {
 }
 
     private Puzzle mapToPuzzle(CSVRecord r) {
-        return new Puzzle( 
-            r.get("id"),
-            r.get("fen"),
-            r.get("moves"),
-            Integer.parseInt(r.get("rating")),
+        return new Puzzle(
+            r.get("PuzzleId"),
+            r.get("FEN"),
+            r.get("Moves"),
+            Integer.parseInt(r.get("Rating")),
             Integer.valueOf(r.get("RatingDeviation")),
             Integer.valueOf(r.get("Popularity")),
             Integer.valueOf(r.get("NbPlays")),
-            r.get("themes"),
-            r.get("gameUrl")
+            r.get("Themes"),
+            r.get("GameUrl")
         );
     }
 }
