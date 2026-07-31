@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/innerchess
+    username: innerchess
+    password: innerchess

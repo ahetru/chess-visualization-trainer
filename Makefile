@@ -40,7 +40,7 @@ backend-test: db-up
 	cd backend && ./mvnw test
 
 backend-run:
-	cd backend && ./mvnw spring-boot:run
+	cd backend && ./mvnw spring-boot:run -Dspring-boot.run.jvmArguments="-Dspring.profiles.active=local"
 
 # -------------------------
 # FRONTEND
@@ -80,12 +80,12 @@ db-up:
 # PUZZLE IMPORT
 # -------------------------
 
-CSV_PATH ?= backend/data/lichess_puzzles.csv
+CSV_PATH ?= data/lichess_db_puzzle.csv
 PUZZLE_COUNT ?= 500
 
 import-puzzles: db-up
 	cd backend && ./mvnw spring-boot:run \
-		-Dspring-boot.run.profiles=import-puzzles \
+		-Dspring-boot.run.jvmArguments="-Dspring.profiles.active=local,import-puzzles" \
 		-Dspring-boot.run.arguments="$(CSV_PATH) $(PUZZLE_COUNT)"
 
 # -------------------------
