@@ -89,3 +89,9 @@ Thumbs.db
 # Docker overrides (optional)
 ########################################
 docker-compose.override.yml
+
+########################################
+# opencode / AI agent config (local only)
+########################################
+.opencode/
+opencode.json
