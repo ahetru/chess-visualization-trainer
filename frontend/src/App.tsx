@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import './App.css'
 import { getRandomPuzzle } from './api/puzzle.api'
 import type { Puzzle } from './api/puzzle.api'
 
