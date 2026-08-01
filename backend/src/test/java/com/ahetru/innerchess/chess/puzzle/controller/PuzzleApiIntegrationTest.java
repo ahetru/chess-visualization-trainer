@@ -1,6 +1,7 @@
 package com.ahetru.innerchess.chess.puzzle.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -73,6 +75,50 @@ class PuzzleApiIntegrationTest {
         mockMvc.perform(get("/api/puzzles/99999"))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("Puzzle not found with id 99999"));
+    }
+
+    @Test
+    void submitMoveReturnsCorrectWhenMoveMatchesSolution() throws Exception {
+        repository.save(puzzle());
+
+        mockMvc.perform(post("/api/puzzles/00001/moves")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"move\":\"e2e4\",\"moveNumber\":0}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.correct").value(true))
+            .andExpect(jsonPath("$.solved").value(true))
+            .andExpect(jsonPath("$.replyMove").value("d7d5"));
+    }
+
+    @Test
+    void submitMoveReturnsIncorrectWhenMoveDoesNotMatch() throws Exception {
+        repository.save(puzzle());
+
+        mockMvc.perform(post("/api/puzzles/00001/moves")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"move\":\"d2d4\",\"moveNumber\":0}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.correct").value(false))
+            .andExpect(jsonPath("$.solved").value(false))
+            .andExpect(jsonPath("$.replyMove").doesNotExist());
+    }
+
+    @Test
+    void submitMoveReturns400WhenMoveNumberIsOutOfRange() throws Exception {
+        repository.save(puzzle());
+
+        mockMvc.perform(post("/api/puzzles/00001/moves")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"move\":\"e2e4\",\"moveNumber\":5}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void submitMoveReturns404WhenPuzzleDoesNotExist() throws Exception {
+        mockMvc.perform(post("/api/puzzles/99999/moves")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"move\":\"e2e4\",\"moveNumber\":0}"))
+            .andExpect(status().isNotFound());
     }
 
     private Puzzle puzzle() {

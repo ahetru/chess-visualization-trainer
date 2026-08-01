@@ -2,6 +2,7 @@ package com.ahetru.innerchess.chess.puzzle.controller;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -11,9 +12,12 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.ahetru.innerchess.chess.puzzle.dto.MoveSubmissionRequest;
+import com.ahetru.innerchess.chess.puzzle.dto.MoveSubmissionResponse;
 import com.ahetru.innerchess.chess.puzzle.dto.PuzzleDto;
 import com.ahetru.innerchess.chess.puzzle.exception.PuzzleNotFoundException;
 import com.ahetru.innerchess.chess.puzzle.service.PuzzleService;
@@ -70,6 +74,40 @@ class PuzzleControllerTest {
         when(puzzleService.getPuzzle("99999")).thenThrow(new PuzzleNotFoundException("Puzzle not found with id 99999"));
 
         mockMvc.perform(get("/api/puzzles/99999"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.message").value("Puzzle not found with id 99999"));
+    }
+
+    @Test
+    void submitMoveReturnsMoveSubmissionResponse() throws Exception {
+        when(puzzleService.submitMove("00001", new MoveSubmissionRequest("e2e4", 0)))
+            .thenReturn(new MoveSubmissionResponse(true, false, "d7d5"));
+
+        mockMvc.perform(post("/api/puzzles/00001/moves")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"move\":\"e2e4\",\"moveNumber\":0}"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.correct").value(true))
+            .andExpect(jsonPath("$.solved").value(false))
+            .andExpect(jsonPath("$.replyMove").value("d7d5"));
+    }
+
+    @Test
+    void submitMoveReturns400WhenMoveIsBlank() throws Exception {
+        mockMvc.perform(post("/api/puzzles/00001/moves")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"move\":\"\",\"moveNumber\":0}"))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void submitMoveReturns404WhenPuzzleDoesNotExist() throws Exception {
+        when(puzzleService.submitMove("99999", new MoveSubmissionRequest("e2e4", 0)))
+            .thenThrow(new PuzzleNotFoundException("Puzzle not found with id 99999"));
+
+        mockMvc.perform(post("/api/puzzles/99999/moves")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"move\":\"e2e4\",\"moveNumber\":0}"))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("Puzzle not found with id 99999"));
     }
