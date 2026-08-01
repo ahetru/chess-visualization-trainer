@@ -1,12 +1,5 @@
-import { apiClient } from './client';
-
-export interface Puzzle {
-    id: string;
-    fen: string;
-    moves: string;
-    rating: number;
-    themes: string;
-}
+import { apiClient } from '../../../lib/api/client';
+import type { Puzzle } from '../types/puzzle.types';
 
 export async function getRandomPuzzle(): Promise<Puzzle> {
     const response = await apiClient.get('/api/puzzles/random');
