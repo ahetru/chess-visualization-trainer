@@ -48,7 +48,9 @@ class PuzzleApiIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value("00001"))
             .andExpect(jsonPath("$.fen").value("r6k/pp2r2p/4Rp1Q/3p4/8/1N1P2R1/PqP2bPP/7K b - - 0 24"))
-            .andExpect(jsonPath("$.moves").value("e2e4 d7d5"))
+            .andExpect(jsonPath("$.playerColor").value("w"))
+            .andExpect(jsonPath("$.opponentMove").value("e2e4"))
+            .andExpect(jsonPath("$.solution").value("d7d5"))
             .andExpect(jsonPath("$.rating").value(1784))
             .andExpect(jsonPath("$.themes").value("crushing hangingPiece"));
     }
@@ -67,6 +69,7 @@ class PuzzleApiIntegrationTest {
         mockMvc.perform(get("/api/puzzles/00001"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value("00001"))
+            .andExpect(jsonPath("$.playerColor").value("w"))
             .andExpect(jsonPath("$.rating").value(1784));
     }
 
@@ -83,11 +86,11 @@ class PuzzleApiIntegrationTest {
 
         mockMvc.perform(post("/api/puzzles/00001/moves")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"move\":\"e2e4\",\"moveNumber\":0}"))
+                .content("{\"move\":\"d7d5\",\"moveNumber\":0}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.correct").value(true))
             .andExpect(jsonPath("$.solved").value(true))
-            .andExpect(jsonPath("$.replyMove").value("d7d5"));
+            .andExpect(jsonPath("$.replyMove").doesNotExist());
     }
 
     @Test
@@ -96,7 +99,7 @@ class PuzzleApiIntegrationTest {
 
         mockMvc.perform(post("/api/puzzles/00001/moves")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"move\":\"d2d4\",\"moveNumber\":0}"))
+                .content("{\"move\":\"e2e4\",\"moveNumber\":0}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.correct").value(false))
             .andExpect(jsonPath("$.solved").value(false))
@@ -109,7 +112,7 @@ class PuzzleApiIntegrationTest {
 
         mockMvc.perform(post("/api/puzzles/00001/moves")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"move\":\"e2e4\",\"moveNumber\":5}"))
+                .content("{\"move\":\"d7d5\",\"moveNumber\":5}"))
             .andExpect(status().isBadRequest());
     }
 
@@ -117,7 +120,7 @@ class PuzzleApiIntegrationTest {
     void submitMoveReturns404WhenPuzzleDoesNotExist() throws Exception {
         mockMvc.perform(post("/api/puzzles/99999/moves")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"move\":\"e2e4\",\"moveNumber\":0}"))
+                .content("{\"move\":\"d7d5\",\"moveNumber\":0}"))
             .andExpect(status().isNotFound());
     }
 

@@ -66,7 +66,12 @@ public class PuzzleService {
         if (moves == null || moves.isBlank()) {
             throw new IllegalArgumentException("Puzzle has no solution");
         }
-        return Arrays.stream(moves.trim().split("\\s+"))
+        String[] tokens = moves.trim().split("\\s+");
+        if (tokens.length < 2) {
+            throw new IllegalArgumentException("Puzzle has no solution (only opponent move present)");
+        }
+        // Skip tokens[0] — it is the opponent's blunder, not part of the player's solution.
+        return Arrays.stream(tokens, 1, tokens.length)
             .filter(s -> !s.isBlank())
             .toList();
     }

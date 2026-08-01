@@ -3,7 +3,9 @@ package com.ahetru.innerchess.chess.puzzle.dto;
 public record PuzzleDto(
     String id,
     String fen,
-    String moves,
+    String playerColor,
+    String opponentMove,
+    String solution,
     int rating,
     String themes
 ) {}

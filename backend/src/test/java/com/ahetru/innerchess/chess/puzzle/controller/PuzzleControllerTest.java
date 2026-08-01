@@ -44,7 +44,9 @@ class PuzzleControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value("00001"))
             .andExpect(jsonPath("$.fen").value("startpos"))
-            .andExpect(jsonPath("$.moves").value("e2e4"))
+            .andExpect(jsonPath("$.playerColor").value("w"))
+            .andExpect(jsonPath("$.opponentMove").value("e2e4"))
+            .andExpect(jsonPath("$.solution").value("d7d5"))
             .andExpect(jsonPath("$.rating").value(1784))
             .andExpect(jsonPath("$.themes").value("crushing"));
     }
@@ -66,6 +68,7 @@ class PuzzleControllerTest {
         mockMvc.perform(get("/api/puzzles/00001"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value("00001"))
+            .andExpect(jsonPath("$.playerColor").value("w"))
             .andExpect(jsonPath("$.rating").value(1784));
     }
 
@@ -80,16 +83,16 @@ class PuzzleControllerTest {
 
     @Test
     void submitMoveReturnsMoveSubmissionResponse() throws Exception {
-        when(puzzleService.submitMove("00001", new MoveSubmissionRequest("e2e4", 0)))
-            .thenReturn(new MoveSubmissionResponse(true, false, "d7d5"));
+        when(puzzleService.submitMove("00001", new MoveSubmissionRequest("d7d5", 0)))
+            .thenReturn(new MoveSubmissionResponse(true, false, "g1f3"));
 
         mockMvc.perform(post("/api/puzzles/00001/moves")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"move\":\"e2e4\",\"moveNumber\":0}"))
+                .content("{\"move\":\"d7d5\",\"moveNumber\":0}"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.correct").value(true))
             .andExpect(jsonPath("$.solved").value(false))
-            .andExpect(jsonPath("$.replyMove").value("d7d5"));
+            .andExpect(jsonPath("$.replyMove").value("g1f3"));
     }
 
     @Test
@@ -102,17 +105,17 @@ class PuzzleControllerTest {
 
     @Test
     void submitMoveReturns404WhenPuzzleDoesNotExist() throws Exception {
-        when(puzzleService.submitMove("99999", new MoveSubmissionRequest("e2e4", 0)))
+        when(puzzleService.submitMove("99999", new MoveSubmissionRequest("d7d5", 0)))
             .thenThrow(new PuzzleNotFoundException("Puzzle not found with id 99999"));
 
         mockMvc.perform(post("/api/puzzles/99999/moves")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"move\":\"e2e4\",\"moveNumber\":0}"))
+                .content("{\"move\":\"d7d5\",\"moveNumber\":0}"))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.message").value("Puzzle not found with id 99999"));
     }
 
     private PuzzleDto dto() {
-        return new PuzzleDto("00001", "startpos", "e2e4", 1784, "crushing");
+        return new PuzzleDto("00001", "startpos", "w", "e2e4", "d7d5", 1784, "crushing");
     }
 }
