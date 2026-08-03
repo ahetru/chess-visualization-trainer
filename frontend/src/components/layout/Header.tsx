@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { ThemeToggle } from './ThemeToggle'
 
 export function Header() {
     return (
@@ -10,6 +11,9 @@ export function Header() {
                 <Link to="/puzzle" className="text-dim hover:text-ink transition-colors">
                     Puzzle
                 </Link>
+                <div className="ml-auto">
+                    <ThemeToggle />
+                </div>
             </nav>
         </header>
     )
