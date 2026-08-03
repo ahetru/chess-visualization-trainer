@@ -26,8 +26,10 @@ ps:
 rebuild:
 	docker compose -f $(COMPOSE) build --no-cache
 
+# Project-scoped cleanup: removes this project's containers, networks,
+# named volumes (including the dev database) and locally built images.
 clean:
-	docker system prune -f
+	docker compose -f $(COMPOSE) down -v --rmi local --remove-orphans
 
 # -------------------------
 # BACKEND (Spring Boot)
