@@ -1,0 +1,23 @@
+# Dependencies (installed in the image)
+node_modules/
+
+# Build artifacts
+dist/
+dist-ssr/
+.vite/
+.cache/
+
+# Local env files (must not be baked into images)
+.env
+.env.*
+!.env.example
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Docker metadata
+Dockerfile
+.dockerignore

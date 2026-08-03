@@ -1,0 +1,17 @@
+# Build artifacts
+target/
+
+# Maven wrapper (image provides mvn)
+.mvn/
+mvnw
+mvnw.cmd
+
+# Local data (puzzle CSVs)
+data/
+
+# Docs
+HELP.md
+
+# Docker metadata
+Dockerfile
+.dockerignore
