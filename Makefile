@@ -65,7 +65,10 @@ frontend-test:
 # -------------------------
 
 dev:
-	$(MAKE) backend-run & $(MAKE) frontend-dev
+	$(MAKE) backend-run & B_PID=$$!; \
+	$(MAKE) frontend-dev & F_PID=$$!; \
+	trap 'kill $$B_PID $$F_PID 2>/dev/null' EXIT INT TERM; \
+	wait
 
 # -------------------------
 # DATABASE
