@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
-import { Chess } from 'chess.js';
+import { useMemo, useState, useCallback } from 'react';
+import { Chess, type Square } from 'chess.js';
 import { Chessboard } from 'react-chessboard';
-import type { ChessboardOptions } from 'react-chessboard';
+import type { ChessboardOptions, PieceDropHandlerArgs, PieceHandlerArgs } from 'react-chessboard';
 
 interface PuzzleBoardProps {
     fen: string;
@@ -16,14 +16,20 @@ export function PuzzleBoard({
     isDraggable,
     onPieceDrop,
 }: PuzzleBoardProps) {
-    // Compute legal move highlights
+    const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
+
+    // Compute legal move highlights for the selected piece only
     const squareStyles = useMemo(() => {
         const chess = new Chess(fen);
         const styles: Record<string, React.CSSProperties> = {};
-        const highlightColor = 'rgba(255, 255, 0, 0.35)';
 
-        for (const move of chess.moves({ verbose: true })) {
-            styles[move.from] = { background: highlightColor };
+        if (!selectedSquare) return styles;
+
+        // Highlight the selected piece's square
+        styles[selectedSquare] = { background: 'rgba(255, 255, 0, 0.35)' };
+
+        // Show legal destinations from the selected square
+        for (const move of chess.moves({ square: selectedSquare as Square, verbose: true })) {
             styles[move.to] = {
                 background:
                     'radial-gradient(circle, rgba(0,0,0,0.2) 20%, transparent 40%)',
@@ -31,13 +37,29 @@ export function PuzzleBoard({
         }
 
         return styles;
-    }, [fen]);
+    }, [fen, selectedSquare]);
+
+    const handlePieceDrop = useCallback(
+        (args: PieceDropHandlerArgs) => {
+            setSelectedSquare(null);
+            return onPieceDrop?.(args) ?? false;
+        },
+        [onPieceDrop],
+    );
+
+    const handlePieceClick = useCallback(
+        ({ square }: PieceHandlerArgs) => {
+            setSelectedSquare((prev) => (prev === square ? null : square));
+        },
+        [],
+    );
 
     const options: ChessboardOptions = {
         position: fen,
         boardOrientation: playerColor === 'w' ? 'white' : 'black',
         allowDragging: isDraggable,
-        onPieceDrop,
+        onPieceDrop: handlePieceDrop,
+        onPieceClick: handlePieceClick,
         boardStyle: { borderRadius: '4px' },
         squareStyles,
     };
