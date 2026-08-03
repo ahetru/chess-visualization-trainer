@@ -16,7 +16,7 @@ function PuzzleGame({ puzzle }: { puzzle: NonNullable<ReturnType<typeof usePuzzl
     const { fen, status, message, isProcessing, playerColor, currentTurn, moveNumber, onPieceDrop } =
         usePuzzleGame(puzzle)
 
-    const isDraggable = status === 'playing' && !isProcessing
+    const isDraggable = status !== 'solved' && !isProcessing
 
     return (
         <div className="flex flex-col items-center gap-4 px-4 py-8">
