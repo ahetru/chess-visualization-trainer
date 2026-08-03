@@ -18,7 +18,6 @@ export function PuzzleBoard({
 }: PuzzleBoardProps) {
     const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
 
-    // Compute legal move highlights for the selected piece only
     const squareStyles = useMemo(() => {
         const chess = new Chess(fen);
         const styles: Record<string, React.CSSProperties> = {};
@@ -61,6 +60,8 @@ export function PuzzleBoard({
         onPieceDrop: handlePieceDrop,
         onPieceClick: handlePieceClick,
         boardStyle: { borderRadius: '4px' },
+        darkSquareStyle: { backgroundColor: 'var(--board-dark)' },
+        lightSquareStyle: { backgroundColor: 'var(--board-light)' },
         squareStyles,
     };
 
