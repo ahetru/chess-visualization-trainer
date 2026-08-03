@@ -36,7 +36,7 @@ clean:
 backend-build:
 	cd backend && ./mvnw clean package
 
-backend-test: db-up
+backend-test:
 	cd backend && ./mvnw test
 
 backend-run:
