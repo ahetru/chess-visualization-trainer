@@ -29,6 +29,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/innerchess
       SPRING_DATASOURCE_USERNAME: innerchess
       SPRING_DATASOURCE_PASSWORD: innerchess
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/puzzles/random"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   frontend:
     build: ../frontend
@@ -40,7 +46,14 @@ services:
       # published port, not the compose network.
       VITE_API_URL: http://localhost:8080
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5173/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   adminer:
     image: adminer:5
