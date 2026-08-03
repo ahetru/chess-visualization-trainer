@@ -20,11 +20,6 @@ function PuzzleGame({ puzzle }: { puzzle: NonNullable<ReturnType<typeof usePuzzl
 
     return (
         <div className="flex flex-col items-center gap-4 px-4 py-8">
-            <h2 className="text-xl font-bold">Puzzle {puzzle.id}</h2>
-            <p className="text-sm text-gray-500">
-                Rating: {puzzle.rating} &middot; Themes: {puzzle.themes}
-            </p>
-
             <PuzzleBoard
                 fen={fen}
                 playerColor={playerColor}
@@ -34,7 +29,7 @@ function PuzzleGame({ puzzle }: { puzzle: NonNullable<ReturnType<typeof usePuzzl
 
             {message && (
                 <p
-                    className={`text-lg font-semibold ${
+                    className={`text-lg font-medium ${
                         status === 'incorrect'
                             ? 'text-red-600'
                             : status === 'solved'
@@ -47,11 +42,11 @@ function PuzzleGame({ puzzle }: { puzzle: NonNullable<ReturnType<typeof usePuzzl
             )}
 
             {status === 'incorrect' && (
-                <p className="text-sm text-gray-400">Try a different move.</p>
+                <p className="text-sm text-dim">Try a different move.</p>
             )}
             {status === 'solved' && (
                 <button
-                    className="mt-2 rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                    className="mt-2 rounded-sm bg-accent px-6 py-3 text-base font-medium text-white hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition-all"
                     onClick={() => window.location.reload()}
                 >
                     Next Puzzle

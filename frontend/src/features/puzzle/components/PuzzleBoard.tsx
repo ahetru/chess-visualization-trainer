@@ -66,7 +66,7 @@ export function PuzzleBoard({
     };
 
     return (
-        <div style={{ maxWidth: 480 }}>
+        <div style={{ maxWidth: 560 }}>
             <Chessboard options={options} />
         </div>
     );
