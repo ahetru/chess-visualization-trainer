@@ -9,7 +9,7 @@ export function PuzzlePage() {
     if (error) return <div className="p-4 text-red-600">Error: {error}</div>
     if (isLoading || !puzzle) return <div className="p-4">Loading...</div>
 
-    return <PuzzleGame puzzle={puzzle} />
+    return <PuzzleGame key={puzzle.id} puzzle={puzzle} />
 }
 
 function PuzzleGame({ puzzle }: { puzzle: NonNullable<ReturnType<typeof usePuzzle>['puzzle']> }) {
@@ -63,6 +63,7 @@ function PuzzleGame({ puzzle }: { puzzle: NonNullable<ReturnType<typeof usePuzzl
                 playerColor={playerColor}
                 currentTurn={currentTurn}
                 moveNumber={moveNumber}
+                status={status}
                 fen={fen}
             />
         </div>

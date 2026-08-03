@@ -8,10 +8,25 @@ export function usePuzzle() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        let cancelled = false;
+
         getRandomPuzzle()
-            .then(setPuzzle)
-            .catch((err: unknown) => setError(err instanceof Error ? err.message : 'Unknown error'))
-            .finally(() => setIsLoading(false));
+            .then((p) => {
+                if (cancelled) return;
+                setPuzzle(p);
+            })
+            .catch((err: unknown) => {
+                if (cancelled) return;
+                setError(err instanceof Error ? err.message : 'Unknown error');
+            })
+            .finally(() => {
+                if (cancelled) return;
+                setIsLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     return { puzzle, isLoading, error };

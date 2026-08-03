@@ -1,10 +1,12 @@
 import type { Puzzle } from '../types/puzzle.types';
+import type { GameStatus } from '../hooks/usePuzzleGame';
 
 interface PuzzleDebugProps {
     puzzle: Puzzle;
     playerColor: 'w' | 'b';
     currentTurn: 'w' | 'b';
     moveNumber: number;
+    status: GameStatus;
     fen: string;
 }
 
@@ -13,6 +15,7 @@ export function PuzzleDebug({
     playerColor,
     currentTurn,
     moveNumber,
+    status,
     fen,
 }: PuzzleDebugProps) {
     const solutionMoves = puzzle.solution.trim().split(/\s+/).filter(Boolean);
@@ -24,24 +27,8 @@ export function PuzzleDebug({
             </summary>
 
             <div className="space-y-2 px-3 pb-3 font-mono leading-relaxed">
-                <Row label="FEN (puzzle)" value={puzzle.fen} />
-                <Row label="FEN (current)" value={fen} />
-
-                <Row
-                    label="Turn (active color)"
-                    value={
-                        <span
-                            className={
-                                currentTurn === 'w'
-                                    ? 'text-blue-600'
-                                    : 'text-red-600'
-                            }
-                        >
-                            {currentTurn === 'w' ? 'White' : 'Black'} (
-                            {currentTurn})
-                        </span>
-                    }
-                />
+                <Row label="Rating" value={puzzle.rating} />
+                <Row label="Themes" value={puzzle.themes} />
 
                 <Row
                     label="Player (from DTO)"
@@ -59,6 +46,23 @@ export function PuzzleDebug({
                     }
                 />
 
+                <Row
+                    label="Turn (active color)"
+                    value={
+                        <span
+                            className={
+                                currentTurn === 'w'
+                                    ? 'text-blue-600'
+                                    : 'text-red-600'
+                            }
+                        >
+                            {currentTurn === 'w' ? 'White' : 'Black'} (
+                            {currentTurn})
+                        </span>
+                    }
+                />
+
+                <Row label="Status" value={status} />
                 <Row label="Next move index" value={moveNumber} />
 
                 <Row
@@ -71,6 +75,8 @@ export function PuzzleDebug({
                         )
                     }
                 />
+
+                <Row label="Current position (FEN)" value={fen} />
 
                 <div>
                     <span className="font-semibold text-gray-500">
