@@ -1,1 +1,53 @@
 @import "tailwindcss";
+
+/* ── Design tokens — light mode ── */
+:root {
+  /* Surfaces */
+  --bg-primary: #F7F5F2;
+  --bg-surface: #FFFFFF;
+
+  /* Board */
+  --board-light: #EDE6DC;
+  --board-dark: #B8A9D9;
+  --board-selected: #F4C9A8;
+  --board-last-move: #FFE9A8;
+  --board-check: #F4A3A3;
+  --board-valid-move: #9BC6A8;
+
+  /* Text */
+  --text-primary: #2B2630;
+  --text-secondary: #6B6470;
+
+  /* Interactive */
+  --accent: #8E7CC3;
+  --border: #DDD5E8;
+}
+
+/* ── Design tokens — dark mode ── */
+[data-theme="dark"] {
+  --bg-primary: #1E1B24;
+  --bg-surface: #262230;
+
+  --board-light: #4A4358;
+  --board-dark: #322C3F;
+  --board-selected: #C99B6B;
+  --board-last-move: #D9C36A;
+  --board-check: #D97B7B;
+  --board-valid-move: #7FAE8E;
+
+  --text-primary: #F0EDF5;
+  --text-secondary: #A79FB3;
+
+  --accent: #B4A0E5;
+  --border: #3A3448;
+}
+
+/* ── Bridge to Tailwind v4 utilities ── */
+@theme {
+  --color-page: var(--bg-primary);
+  --color-card: var(--bg-surface);
+  --color-ink: var(--text-primary);
+  --color-dim: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-edge: var(--border);
+}
