@@ -35,6 +35,10 @@ services:
     container_name: innerchess-frontend
     ports:
       - "5173:5173"
+    environment:
+      # The browser runs on the host, so it reaches the backend via the
+      # published port, not the compose network.
+      VITE_API_URL: http://localhost:8080
     depends_on:
       - backend
 
