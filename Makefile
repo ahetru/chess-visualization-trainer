@@ -26,8 +26,10 @@ ps:
 rebuild:
 	docker compose -f $(COMPOSE) build --no-cache
 
+# Project-scoped cleanup: removes this project's containers, networks,
+# named volumes (including the dev database) and locally built images.
 clean:
-	docker system prune -f
+	docker compose -f $(COMPOSE) down -v --rmi local --remove-orphans
 
 # -------------------------
 # BACKEND (Spring Boot)
@@ -36,7 +38,7 @@ clean:
 backend-build:
 	cd backend && ./mvnw clean package
 
-backend-test: db-up
+backend-test:
 	cd backend && ./mvnw test
 
 backend-run:
@@ -63,7 +65,10 @@ frontend-test:
 # -------------------------
 
 dev:
-	$(MAKE) backend-run & $(MAKE) frontend-dev
+	$(MAKE) backend-run & B_PID=$$!; \
+	$(MAKE) frontend-dev & F_PID=$$!; \
+	trap 'kill $$B_PID $$F_PID 2>/dev/null' EXIT INT TERM; \
+	wait
 
 # -------------------------
 # DATABASE
