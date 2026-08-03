@@ -9,16 +9,11 @@ function readStoredTheme(): Theme {
     return 'light'
 }
 
-function applyTheme(theme: Theme): void {
-    document.documentElement.dataset.theme = theme
-    localStorage.setItem('theme', theme)
-}
-
 export function useTheme() {
     const [theme, setTheme] = useState<Theme>(readStoredTheme)
 
     useEffect(() => {
-        applyTheme(theme)
+        document.documentElement.dataset.theme = theme
     }, [theme])
 
     // React to system preference changes when the user has no stored preference
@@ -34,7 +29,11 @@ export function useTheme() {
     }, [])
 
     const toggleTheme = useCallback(() => {
-        setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+        setTheme((prev) => {
+            const next = prev === 'light' ? 'dark' : 'light'
+            localStorage.setItem('theme', next)
+            return next
+        })
     }, [])
 
     return { theme, toggleTheme }
