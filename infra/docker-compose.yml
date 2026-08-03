@@ -1,7 +1,7 @@
 services:
 
   db:
-    image: postgres:16
+    image: postgres:16-alpine
     container_name: innerchess-db
     environment:
       POSTGRES_DB: innerchess
@@ -43,7 +43,7 @@ services:
       - backend
 
   adminer:
-    image: adminer
+    image: adminer:5
     container_name: innerchess-adminer
     ports:
       - "8081:8080"
