@@ -3,3 +3,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/innerchess
     username: innerchess
     password: innerchess
+
+app:
+  jwt:
+    secret: lUY9WTJ0WhfFzy4QVsVtLK4b55FmNU+kRfBd6PWR4wmeClHbUTT/kOGRZBF553taYzWhVpUgi/0MOzNG0Y9BCg==
