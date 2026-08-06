@@ -29,6 +29,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/innerchess
       SPRING_DATASOURCE_USERNAME: innerchess
       SPRING_DATASOURCE_PASSWORD: innerchess
+      APP_JWT_SECRET: lU9YWT0jWhfFzy4QVsVtLK4b55FmNU+kRfBd6PWR4wmeClHbUTT/kOGRZBF553taYzWhVpUgi/0MOzNG0Y9BCg==
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/api/puzzles/random"]
       interval: 10s
