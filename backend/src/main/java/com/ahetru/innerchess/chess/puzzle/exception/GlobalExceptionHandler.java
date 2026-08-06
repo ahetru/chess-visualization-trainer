@@ -2,6 +2,7 @@ package com.ahetru.innerchess.chess.puzzle.exception;
 
 import com.ahetru.innerchess.auth.exception.AccountDisabledException;
 import com.ahetru.innerchess.auth.exception.BadCredentialsException;
+import com.ahetru.innerchess.auth.exception.RefreshTokenException;
 import com.ahetru.innerchess.user.exception.DuplicateEmailException;
 import com.ahetru.innerchess.user.exception.DuplicateUserNameException;
 
@@ -51,6 +52,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ApiError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(RefreshTokenException.class)
+    public ResponseEntity<ApiError> handleRefreshToken(RefreshTokenException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(new ApiError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage()));
     }

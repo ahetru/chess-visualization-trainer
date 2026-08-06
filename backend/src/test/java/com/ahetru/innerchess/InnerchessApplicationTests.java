@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import com.ahetru.innerchess.auth.RefreshTokenRepository;
 import com.ahetru.innerchess.chess.puzzle.domain.PuzzleRepository;
 import com.ahetru.innerchess.user.UserRepository;
 
@@ -17,6 +18,9 @@ class InnerchessApplicationTests {
 
 	@MockitoBean
 	private UserRepository userRepository;
+
+	@MockitoBean
+	private RefreshTokenRepository refreshTokenRepository;
 
 	@Test
 	void contextLoads() {
