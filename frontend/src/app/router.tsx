@@ -1,6 +1,8 @@
 import { Route, Routes } from 'react-router'
 import { Layout } from '../components/layout/Layout'
 import { HomePage } from './HomePage'
+import { LoginPage } from '../features/auth/components/LoginPage'
+import { RegisterPage } from '../features/auth/components/RegisterPage'
 import { PuzzlePage } from '../features/puzzle/components/PuzzlePage'
 
 export function AppRouter() {
@@ -8,6 +10,8 @@ export function AppRouter() {
         <Routes>
             <Route element={<Layout />}>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
                 <Route path="/puzzle" element={<PuzzlePage />} />
             </Route>
         </Routes>
