@@ -6,8 +6,8 @@ import { PuzzleDebug } from './PuzzleDebug'
 export function PuzzlePage() {
     const { puzzle, isLoading, error } = usePuzzle()
 
-    if (error) return <div className="p-4 text-red-600">Error: {error}</div>
-    if (isLoading || !puzzle) return <div className="p-4">Loading...</div>
+    if (error) return <div className="p-4 text-[var(--accent-red)]">Error: {error}</div>
+    if (isLoading || !puzzle) return <div className="p-4 text-dim">Loading...</div>
 
     return <PuzzleGame key={puzzle.id} puzzle={puzzle} />
 }
@@ -29,13 +29,15 @@ function PuzzleGame({ puzzle }: { puzzle: NonNullable<ReturnType<typeof usePuzzl
 
             {message && (
                 <p
-                    className={`text-lg font-medium ${
-                        status === 'incorrect'
-                            ? 'text-red-600'
-                            : status === 'solved'
-                              ? 'text-green-600'
-                              : 'text-blue-600'
-                    }`}
+                    className="text-lg font-medium"
+                    style={{
+                        color:
+                            status === 'incorrect'
+                                ? 'var(--accent-red)'
+                                : status === 'solved'
+                                  ? 'var(--accent-green)'
+                                  : 'var(--accent)',
+                    }}
                 >
                     {message}
                 </p>
@@ -46,7 +48,7 @@ function PuzzleGame({ puzzle }: { puzzle: NonNullable<ReturnType<typeof usePuzzl
             )}
             {status === 'solved' && (
                 <button
-                    className="mt-2 rounded-sm bg-accent px-6 py-3 text-base font-medium text-white hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 transition-all"
+                    className="btn-primary mt-2"
                     onClick={() => window.location.reload()}
                 >
                     Next Puzzle

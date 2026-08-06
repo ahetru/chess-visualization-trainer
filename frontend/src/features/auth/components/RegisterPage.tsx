@@ -53,15 +53,12 @@ export function RegisterPage() {
     }
 
     return (
-        <section className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center px-4">
-            <form
-                onSubmit={handleSubmit}
-                className="w-full max-w-sm rounded-sm border border-edge bg-card p-6"
-            >
-                <h1 className="mb-4 text-xl font-medium text-ink">Register</h1>
+        <section className="flex min-h-[calc(100vh-3rem)] flex-col items-center justify-center px-4">
+            <form onSubmit={handleSubmit} className="w-full max-w-sm card p-6">
+                <h1 className="mb-4 text-xl font-semibold text-[var(--fg-strong)]">Register</h1>
 
                 {error && (
-                    <p className="mb-4 rounded-sm border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+                    <p className="mb-4 rounded-[6px] border border-[var(--accent-red)]/30 bg-[var(--accent-red)]/10 px-3 py-2 text-sm text-[var(--accent-red)]">
                         {error}
                     </p>
                 )}
@@ -76,9 +73,7 @@ export function RegisterPage() {
                     autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="mb-3 w-full rounded-sm border border-edge bg-transparent px-3 py-2 text-ink
-                               placeholder:text-dim/50 focus:border-accent focus:outline-none
-                               focus:ring-1 focus:ring-accent"
+                    className="input mb-3"
                     placeholder="you@example.com"
                 />
 
@@ -92,9 +87,7 @@ export function RegisterPage() {
                     autoComplete="username"
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
-                    className="mb-3 w-full rounded-sm border border-edge bg-transparent px-3 py-2 text-ink
-                               placeholder:text-dim/50 focus:border-accent focus:outline-none
-                               focus:ring-1 focus:ring-accent"
+                    className="input mb-3"
                     placeholder="yourname"
                 />
 
@@ -108,18 +101,14 @@ export function RegisterPage() {
                     autoComplete="new-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mb-4 w-full rounded-sm border border-edge bg-transparent px-3 py-2 text-ink
-                               placeholder:text-dim/50 focus:border-accent focus:outline-none
-                               focus:ring-1 focus:ring-accent"
+                    className="input mb-4"
                     placeholder="At least 8 characters"
                 />
 
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full rounded-sm bg-accent px-4 py-2 text-base font-medium text-white
-                               hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-accent
-                               focus:ring-offset-2 transition-all disabled:opacity-50"
+                    className="btn-primary w-full"
                 >
                     {isLoading ? 'Creating account…' : 'Create account'}
                 </button>

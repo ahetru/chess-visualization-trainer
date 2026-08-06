@@ -24,14 +24,12 @@ export function PuzzleBoard({
 
         if (!selectedSquare) return styles;
 
-        // Highlight the selected piece's square
-        styles[selectedSquare] = { background: 'rgba(255, 255, 0, 0.35)' };
+        styles[selectedSquare] = { background: 'var(--board-highlight)' };
 
-        // Show legal destinations from the selected square
         for (const move of chess.moves({ square: selectedSquare as Square, verbose: true })) {
             styles[move.to] = {
                 background:
-                    'radial-gradient(circle, rgba(0,0,0,0.2) 20%, transparent 40%)',
+                    'radial-gradient(circle, var(--board-legal) 20%, transparent 40%)',
             };
         }
 
@@ -59,7 +57,7 @@ export function PuzzleBoard({
         allowDragging: isDraggable,
         onPieceDrop: handlePieceDrop,
         onPieceClick: handlePieceClick,
-        boardStyle: { borderRadius: '4px' },
+        boardStyle: { borderRadius: String('var(--radius)') },
         darkSquareStyle: { backgroundColor: 'var(--board-dark)' },
         lightSquareStyle: { backgroundColor: 'var(--board-light)' },
         squareStyles,
