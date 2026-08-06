@@ -3,6 +3,7 @@ import { Layout } from '../components/layout/Layout'
 import { HomePage } from './HomePage'
 import { LoginPage } from '../features/auth/components/LoginPage'
 import { RegisterPage } from '../features/auth/components/RegisterPage'
+import { RequireAuth } from '../features/auth/components/RequireAuth'
 import { PuzzlePage } from '../features/puzzle/components/PuzzlePage'
 
 export function AppRouter() {
@@ -12,7 +13,14 @@ export function AppRouter() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
-                <Route path="/puzzle" element={<PuzzlePage />} />
+                <Route
+                    path="/puzzle"
+                    element={
+                        <RequireAuth>
+                            <PuzzlePage />
+                        </RequireAuth>
+                    }
+                />
             </Route>
         </Routes>
     )

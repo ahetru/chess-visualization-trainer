@@ -1,8 +1,9 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { AuthProvider } from '../features/auth/context/AuthContext'
 import { AppRouter } from './router'
+import { TOKEN_KEY } from '../lib/api/client'
 import type { ReactNode } from 'react'
 
 vi.mock('../features/puzzle/hooks/usePuzzle', () => ({
@@ -19,7 +20,17 @@ function TestWrapper({ children, initialEntries = ['/'] }: { children: ReactNode
     )
 }
 
+function login() {
+    localStorage.setItem(TOKEN_KEY, 'fake-token')
+}
+
+function logout() {
+    localStorage.removeItem(TOKEN_KEY)
+}
+
 describe('AppRouter', () => {
+    beforeEach(() => logout())
+
     it('renders the home page at "/"', () => {
         render(
             <TestWrapper>
@@ -30,7 +41,9 @@ describe('AppRouter', () => {
         expect(screen.getByRole('heading', { name: /innerchess/i })).toBeInTheDocument()
     })
 
-    it('renders the puzzle page at "/puzzle"', () => {
+    it('renders the puzzle page at "/puzzle" when authenticated', () => {
+        login()
+
         render(
             <TestWrapper initialEntries={['/puzzle']}>
                 <AppRouter />
@@ -38,6 +51,16 @@ describe('AppRouter', () => {
         )
 
         expect(screen.getByText(/loading/i)).toBeInTheDocument()
+    })
+
+    it('redirects /puzzle to /login when not authenticated', () => {
+        render(
+            <TestWrapper initialEntries={['/puzzle']}>
+                <AppRouter />
+            </TestWrapper>,
+        )
+
+        expect(screen.getByRole('heading', { name: /log in/i })).toBeInTheDocument()
     })
 
     it('renders the login page at "/login"', () => {
@@ -60,7 +83,9 @@ describe('AppRouter', () => {
         expect(screen.getByRole('heading', { name: /register/i })).toBeInTheDocument()
     })
 
-    it('navigates between the two routes via the header links', () => {
+    it('navigates between routes via the header links when authenticated', () => {
+        login()
+
         render(
             <TestWrapper>
                 <AppRouter />
