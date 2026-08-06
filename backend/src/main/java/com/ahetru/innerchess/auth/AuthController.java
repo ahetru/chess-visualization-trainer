@@ -4,6 +4,7 @@ import com.ahetru.innerchess.auth.dto.AuthResponse;
 import com.ahetru.innerchess.auth.dto.LoginRequest;
 import com.ahetru.innerchess.auth.dto.RegisterRequest;
 import com.ahetru.innerchess.auth.jwt.JwtService;
+import com.ahetru.innerchess.config.JwtProperties;
 import com.ahetru.innerchess.user.UserService;
 import com.ahetru.innerchess.user.dto.UserDto;
 import jakarta.validation.Valid;
@@ -21,11 +22,14 @@ public class AuthController {
     private final UserService userService;
     private final AuthService authService;
     private final JwtService jwtService;
+    private final JwtProperties jwtProperties;
 
-    public AuthController(UserService userService, AuthService authService, JwtService jwtService) {
+    public AuthController(UserService userService, AuthService authService,
+                          JwtService jwtService, JwtProperties jwtProperties) {
         this.userService = userService;
         this.authService = authService;
         this.jwtService = jwtService;
+        this.jwtProperties = jwtProperties;
     }
 
     @PostMapping("/register")
@@ -43,6 +47,7 @@ public class AuthController {
         UserDto user = authService.authenticate(request.email(), request.password());
         String accessToken = jwtService.generateAccessToken(user.id());
         String refreshToken = jwtService.generateRefreshToken();
-        return ResponseEntity.ok(new AuthResponse(accessToken, refreshToken));
+        return ResponseEntity.ok(new AuthResponse(accessToken, refreshToken,
+                "Bearer", jwtProperties.accessTokenTtl()));
     }
 }

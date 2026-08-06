@@ -4,6 +4,7 @@ import com.ahetru.innerchess.auth.dto.AuthResponse;
 import com.ahetru.innerchess.auth.exception.AccountDisabledException;
 import com.ahetru.innerchess.auth.exception.BadCredentialsException;
 import com.ahetru.innerchess.auth.jwt.JwtService;
+import com.ahetru.innerchess.config.JwtProperties;
 import com.ahetru.innerchess.config.WebConfig;
 import com.ahetru.innerchess.user.UserService;
 import com.ahetru.innerchess.user.dto.UserDto;
@@ -46,6 +47,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private JwtProperties jwtProperties;
 
     @Test
     void registerReturnsCreatedWithUserDto() throws Exception {
@@ -163,6 +167,8 @@ class AuthControllerTest {
                 .thenReturn("access-token-abc");
         when(jwtService.generateRefreshToken())
                 .thenReturn("refresh-token-xyz");
+        when(jwtProperties.accessTokenTtl())
+                .thenReturn(900);
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -170,7 +176,9 @@ class AuthControllerTest {
                                 {"email":"alice@example.com","password":"secret123"}"""))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").value("access-token-abc"))
-                .andExpect(jsonPath("$.refreshToken").value("refresh-token-xyz"));
+                .andExpect(jsonPath("$.refreshToken").value("refresh-token-xyz"))
+                .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                .andExpect(jsonPath("$.expiresIn").value(900));
     }
 
     @Test
