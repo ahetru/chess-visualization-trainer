@@ -1,7 +1,10 @@
 package com.ahetru.innerchess.auth;
 
+import com.ahetru.innerchess.auth.dto.AuthResponse;
 import com.ahetru.innerchess.auth.exception.AccountDisabledException;
 import com.ahetru.innerchess.auth.exception.BadCredentialsException;
+import com.ahetru.innerchess.auth.jwt.JwtService;
+import com.ahetru.innerchess.config.JwtProperties;
 import com.ahetru.innerchess.user.UserRepository;
 import com.ahetru.innerchess.user.domain.User;
 import com.ahetru.innerchess.user.dto.UserDto;
@@ -29,6 +32,28 @@ public class AuthService {
      * generic message.
      */
     public UserDto authenticate(String email, String password) {
+        return UserMapper.toDto(authenticateUser(email, password));
+    }
+
+    /**
+     * Full login flow: authenticates, issues tokens, and stores the refresh
+     * token. Returns an {@link AuthResponse} with access and refresh tokens.
+     */
+    @Transactional
+    public AuthResponse login(String email, String password,
+                              JwtService jwtService,
+                              RefreshTokenService refreshTokenService,
+                              JwtProperties jwtProperties) {
+        User user = authenticateUser(email, password);
+
+        String accessToken = jwtService.generateAccessToken(user.getId());
+        String refreshToken = jwtService.generateRefreshToken();
+        refreshTokenService.store(user, refreshToken);
+
+        return new AuthResponse(accessToken, refreshToken, "Bearer", jwtProperties.accessTokenTtl());
+    }
+
+    private User authenticateUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(BadCredentialsException::new);
 
@@ -40,6 +65,6 @@ public class AuthService {
             throw new BadCredentialsException();
         }
 
-        return UserMapper.toDto(user);
+        return user;
     }
 }

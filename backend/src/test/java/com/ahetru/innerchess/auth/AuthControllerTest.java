@@ -3,6 +3,7 @@ package com.ahetru.innerchess.auth;
 import com.ahetru.innerchess.auth.dto.AuthResponse;
 import com.ahetru.innerchess.auth.exception.AccountDisabledException;
 import com.ahetru.innerchess.auth.exception.BadCredentialsException;
+import com.ahetru.innerchess.auth.exception.RefreshTokenException;
 import com.ahetru.innerchess.auth.jwt.JwtService;
 import com.ahetru.innerchess.config.JwtProperties;
 import com.ahetru.innerchess.config.WebConfig;
@@ -50,6 +51,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtProperties jwtProperties;
+
+    @MockitoBean
+    private RefreshTokenService refreshTokenService;
 
     @Test
     void registerReturnsCreatedWithUserDto() throws Exception {
@@ -158,17 +162,10 @@ class AuthControllerTest {
 
     @Test
     void loginReturnsAuthResponseOnValidCredentials() throws Exception {
-        UserDto user = new UserDto(
-                UUID.fromString("11111111-1111-1111-1111-111111111111"),
-                "alice@example.com", "alice", "USER");
-        when(authService.authenticate("alice@example.com", "secret123"))
-                .thenReturn(user);
-        when(jwtService.generateAccessToken(user.id()))
-                .thenReturn("access-token-abc");
-        when(jwtService.generateRefreshToken())
-                .thenReturn("refresh-token-xyz");
-        when(jwtProperties.accessTokenTtl())
-                .thenReturn(900);
+        when(authService.login(eq("alice@example.com"), eq("secret123"),
+                any(), any(), any()))
+                .thenReturn(new AuthResponse("access-token-abc", "refresh-token-xyz",
+                        "Bearer", 900));
 
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -183,7 +180,8 @@ class AuthControllerTest {
 
     @Test
     void loginReturns401OnBadCredentials() throws Exception {
-        when(authService.authenticate("alice@example.com", "wrong"))
+        when(authService.login(eq("alice@example.com"), eq("wrong"),
+                any(), any(), any()))
                 .thenThrow(new BadCredentialsException());
 
         mockMvc.perform(post("/api/auth/login")
@@ -197,7 +195,8 @@ class AuthControllerTest {
 
     @Test
     void loginReturns403OnDisabledAccount() throws Exception {
-        when(authService.authenticate("bob@example.com", "secret123"))
+        when(authService.login(eq("bob@example.com"), eq("secret123"),
+                any(), any(), any()))
                 .thenThrow(new AccountDisabledException());
 
         mockMvc.perform(post("/api/auth/login")
@@ -237,5 +236,69 @@ class AuthControllerTest {
                                 {"email":"alice@example.com","password":""}"""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("password: Password is required"));
+    }
+
+    @Test
+    void refreshReturnsAuthResponseOnValidToken() throws Exception {
+        when(refreshTokenService.rotate("valid-refresh"))
+                .thenReturn(new AuthResponse("new-access", "new-refresh", "Bearer", 900));
+
+        mockMvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"refreshToken":"valid-refresh"}"""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("new-access"))
+                .andExpect(jsonPath("$.refreshToken").value("new-refresh"));
+    }
+
+    @Test
+    void refreshReturns401OnInvalidToken() throws Exception {
+        when(refreshTokenService.rotate("bad-token"))
+                .thenThrow(new RefreshTokenException("Invalid refresh token"));
+
+        mockMvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"refreshToken":"bad-token"}"""))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.message").value("Invalid refresh token"));
+    }
+
+    @Test
+    void refreshReturns400WhenTokenIsBlank() throws Exception {
+        mockMvc.perform(post("/api/auth/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"refreshToken":""}"""))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void logoutReturns204OnValidToken() throws Exception {
+        mockMvc.perform(post("/api/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"refreshToken":"valid-refresh"}"""))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void logoutReturns204OnAlreadyRevokedToken() throws Exception {
+        mockMvc.perform(post("/api/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"refreshToken":"already-revoked"}"""))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void logoutReturns400WhenTokenIsBlank() throws Exception {
+        mockMvc.perform(post("/api/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"refreshToken":""}"""))
+                .andExpect(status().isBadRequest());
     }
 }
