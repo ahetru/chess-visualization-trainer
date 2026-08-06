@@ -21,7 +21,7 @@ import com.ahetru.innerchess.chess.puzzle.domain.Puzzle;
 import com.ahetru.innerchess.chess.puzzle.domain.PuzzleRepository;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @Testcontainers
 class PuzzleApiIntegrationTest {
 

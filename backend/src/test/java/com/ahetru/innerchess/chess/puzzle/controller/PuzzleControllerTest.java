@@ -16,16 +16,22 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.ahetru.innerchess.auth.jwt.JwtAuthFilter;
 import com.ahetru.innerchess.chess.puzzle.dto.MoveSubmissionRequest;
 import com.ahetru.innerchess.chess.puzzle.dto.MoveSubmissionResponse;
 import com.ahetru.innerchess.chess.puzzle.dto.PuzzleDto;
 import com.ahetru.innerchess.chess.puzzle.exception.PuzzleNotFoundException;
 import com.ahetru.innerchess.chess.puzzle.service.PuzzleService;
+import com.ahetru.innerchess.config.SecurityConfig;
 import com.ahetru.innerchess.config.WebConfig;
 
 @WebMvcTest(
     controllers = PuzzleController.class,
-    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebConfig.class)
+    excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebConfig.class),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthFilter.class)
+    }
 )
 @AutoConfigureMockMvc(addFilters = false)
 class PuzzleControllerTest {
