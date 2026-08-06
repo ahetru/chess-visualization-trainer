@@ -1,5 +1,7 @@
 package com.ahetru.innerchess.chess.puzzle.exception;
 
+import com.ahetru.innerchess.auth.exception.AccountDisabledException;
+import com.ahetru.innerchess.auth.exception.BadCredentialsException;
 import com.ahetru.innerchess.user.exception.DuplicateEmailException;
 import com.ahetru.innerchess.user.exception.DuplicateUserNameException;
 
@@ -45,6 +47,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleDuplicateUserName(DuplicateUserNameException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(new ApiError(HttpStatus.CONFLICT.value(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ApiError(HttpStatus.UNAUTHORIZED.value(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(AccountDisabledException.class)
+    public ResponseEntity<ApiError> handleAccountDisabled(AccountDisabledException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(new ApiError(HttpStatus.FORBIDDEN.value(), ex.getMessage()));
     }
 
     public record ApiError(int status, String message) {}

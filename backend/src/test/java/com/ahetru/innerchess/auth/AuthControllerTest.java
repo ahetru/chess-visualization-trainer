@@ -1,5 +1,6 @@
 package com.ahetru.innerchess.auth;
 
+import com.ahetru.innerchess.auth.jwt.JwtService;
 import com.ahetru.innerchess.config.WebConfig;
 import com.ahetru.innerchess.user.UserService;
 import com.ahetru.innerchess.user.dto.UserDto;
@@ -36,6 +37,12 @@ class AuthControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+    @MockitoBean
+    private AuthService authService;
+
+    @MockitoBean
+    private JwtService jwtService;
 
     @Test
     void registerReturnsCreatedWithUserDto() throws Exception {
