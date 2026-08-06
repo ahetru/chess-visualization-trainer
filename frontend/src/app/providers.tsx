@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { AuthProvider } from '../features/auth/context/AuthContext'
 
 interface ProvidersProps {
     children: ReactNode
@@ -6,8 +7,8 @@ interface ProvidersProps {
 
 /**
  * Central place for app-wide providers.
- * TanStack Query's QueryClientProvider will be added here in Phase 7.
+ * TanStack Query's QueryClientProvider will be added here when needed.
  */
 export function Providers({ children }: ProvidersProps) {
-    return <>{children}</>
+    return <AuthProvider>{children}</AuthProvider>
 }
