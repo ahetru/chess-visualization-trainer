@@ -1,5 +1,8 @@
 package com.ahetru.innerchess.auth;
 
+import com.ahetru.innerchess.auth.dto.AuthResponse;
+import com.ahetru.innerchess.auth.exception.AccountDisabledException;
+import com.ahetru.innerchess.auth.exception.BadCredentialsException;
 import com.ahetru.innerchess.auth.jwt.JwtService;
 import com.ahetru.innerchess.config.WebConfig;
 import com.ahetru.innerchess.user.UserService;
@@ -147,5 +150,84 @@ class AuthControllerTest {
                                 {"email":"alice@example.com","password":"secret123","userName":"ab"}"""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("userName: User name must be between 3 and 100 characters"));
+    }
+
+    @Test
+    void loginReturnsAuthResponseOnValidCredentials() throws Exception {
+        UserDto user = new UserDto(
+                UUID.fromString("11111111-1111-1111-1111-111111111111"),
+                "alice@example.com", "alice", "USER");
+        when(authService.authenticate("alice@example.com", "secret123"))
+                .thenReturn(user);
+        when(jwtService.generateAccessToken(user.id()))
+                .thenReturn("access-token-abc");
+        when(jwtService.generateRefreshToken())
+                .thenReturn("refresh-token-xyz");
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"alice@example.com","password":"secret123"}"""))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("access-token-abc"))
+                .andExpect(jsonPath("$.refreshToken").value("refresh-token-xyz"));
+    }
+
+    @Test
+    void loginReturns401OnBadCredentials() throws Exception {
+        when(authService.authenticate("alice@example.com", "wrong"))
+                .thenThrow(new BadCredentialsException());
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"alice@example.com","password":"wrong"}"""))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.message").value("Invalid email or password"));
+    }
+
+    @Test
+    void loginReturns403OnDisabledAccount() throws Exception {
+        when(authService.authenticate("bob@example.com", "secret123"))
+                .thenThrow(new AccountDisabledException());
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"bob@example.com","password":"secret123"}"""))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.message").value("Account is disabled"));
+    }
+
+    @Test
+    void loginReturns400WhenEmailIsBlank() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"","password":"secret123"}"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("email: Email is required"));
+    }
+
+    @Test
+    void loginReturns400WhenEmailIsInvalid() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"not-an-email","password":"secret123"}"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("email: Email must be valid"));
+    }
+
+    @Test
+    void loginReturns400WhenPasswordIsBlank() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"alice@example.com","password":""}"""))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("password: Password is required"));
     }
 }
