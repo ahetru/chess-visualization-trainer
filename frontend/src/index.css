@@ -55,8 +55,8 @@ body {
   --accent-red: #e45649;
   --muted: #a0a1a7;
 
-  --board-light: #ede6dc;
-  --board-dark: #b8a9d9;
+  --board-light: #f0f0f0;
+  --board-dark: #9db6d0;
 }
 
 /* ── Shared pattern classes ── */
