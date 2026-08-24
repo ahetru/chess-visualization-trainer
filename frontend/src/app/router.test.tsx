@@ -7,7 +7,7 @@ import { TOKEN_KEY } from '../lib/api/client'
 import type { ReactNode } from 'react'
 
 vi.mock('../features/puzzle/hooks/usePuzzle', () => ({
-    usePuzzle: () => ({ puzzle: null, isLoading: true, error: null }),
+    usePuzzle: () => ({ puzzle: null, isLoading: true, error: null, loadNext: vi.fn() }),
 }))
 
 function TestWrapper({ children, initialEntries = ['/'] }: { children: ReactNode; initialEntries?: string[] }) {
@@ -50,7 +50,7 @@ describe('AppRouter', () => {
             </TestWrapper>,
         )
 
-        expect(screen.getByText(/loading/i)).toBeInTheDocument()
+        expect(screen.getByRole('status')).toBeInTheDocument()
     })
 
     it('redirects /puzzle to /login when not authenticated', () => {
@@ -93,7 +93,7 @@ describe('AppRouter', () => {
         )
 
         fireEvent.click(screen.getByRole('link', { name: 'Puzzle' }))
-        expect(screen.getByText(/loading/i)).toBeInTheDocument()
+        expect(screen.getByRole('status')).toBeInTheDocument()
 
         fireEvent.click(screen.getByRole('link', { name: 'InnerChess' }))
         expect(screen.getByRole('heading', { name: /innerchess/i })).toBeInTheDocument()

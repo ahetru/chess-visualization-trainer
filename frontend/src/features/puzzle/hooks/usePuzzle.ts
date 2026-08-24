@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getRandomPuzzle } from '../api/puzzle.api';
 import type { Puzzle } from '../types/puzzle.types';
 
@@ -6,6 +6,7 @@ export function usePuzzle() {
     const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [reloadKey, setReloadKey] = useState(0);
 
     useEffect(() => {
         let cancelled = false;
@@ -27,7 +28,13 @@ export function usePuzzle() {
         return () => {
             cancelled = true;
         };
+    }, [reloadKey]);
+
+    const loadNext = useCallback(() => {
+        setError(null);
+        setIsLoading(true);
+        setReloadKey((k) => k + 1);
     }, []);
 
-    return { puzzle, isLoading, error };
+    return { puzzle, isLoading, error, loadNext };
 }

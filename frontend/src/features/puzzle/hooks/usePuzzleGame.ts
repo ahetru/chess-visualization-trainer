@@ -17,10 +17,6 @@ export interface UsePuzzleGameReturn {
     isProcessing: boolean;
     /** The player's color ('w' or 'b') */
     playerColor: 'w' | 'b';
-    /** The current side to move according to chess.js ('w' or 'b') */
-    currentTurn: 'w' | 'b';
-    /** The 0-based index of the next player move to submit */
-    moveNumber: number;
     /** Handler for react-chessboard onPieceDrop (options.onPieceDrop) */
     onPieceDrop: NonNullable<ChessboardOptions['onPieceDrop']>;
 }
@@ -64,8 +60,6 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
     const [status, setStatus] = useState<GameStatus>('playing');
     const [message, setMessage] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [currentTurn, setCurrentTurn] = useState<'w' | 'b'>(playerColor);
-    const [moveNumber, setMoveNumber] = useState(0);
 
     const onPieceDrop: NonNullable<ChessboardOptions['onPieceDrop']> = useCallback(
         (args: PieceDropHandlerArgs) => {
@@ -83,6 +77,10 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
 
             if (!moveResult) return false; // illegal move, piece snaps back
 
+            // Clear any stale feedback from the previous move
+            setStatus('playing');
+            setMessage(null);
+
             // Build UCI string: from + to + optional promotion piece
             const uci =
                 moveResult.from + moveResult.to + (moveResult.promotion ?? '');
@@ -90,7 +88,6 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
 
             processingRef.current = true;
             setIsProcessing(true);
-            setCurrentTurn(chessRef.current.turn() as 'w' | 'b');
 
             submitMove(puzzle.id, uci, currentMoveNumber)
                 .then((response) => {
@@ -118,15 +115,12 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
                         }
 
                         moveNumberRef.current += 2;
-                        setMoveNumber(moveNumberRef.current);
-                        setCurrentTurn(chessRef.current.turn() as 'w' | 'b');
                     } else {
                         // Incorrect — undo the move, piece snaps back
                         chessRef.current.undo();
                         setFen(chessRef.current.fen());
                         setStatus('incorrect');
                         setMessage('Incorrect move, try again.');
-                        setCurrentTurn(chessRef.current.turn() as 'w' | 'b');
                     }
                 })
                 .catch(() => {
@@ -135,7 +129,6 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
                     setFen(chessRef.current.fen());
                     setStatus('incorrect');
                     setMessage('Failed to submit move. Try again.');
-                    setCurrentTurn(chessRef.current.turn() as 'w' | 'b');
                 })
                 .finally(() => {
                     processingRef.current = false;
@@ -150,5 +143,5 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
         [puzzle.id, playerColor],
     );
 
-    return { fen, status, message, isProcessing, playerColor, currentTurn, moveNumber, onPieceDrop };
+    return { fen, status, message, isProcessing, playerColor, onPieceDrop };
 }
