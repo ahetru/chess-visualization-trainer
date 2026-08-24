@@ -1,5 +1,27 @@
 import { describe, expect, it } from 'vitest'
-import { apiClient, TOKEN_KEY } from './client'
+import {
+  apiClient,
+  TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+  setTokens,
+  clearTokens,
+  getAccessToken,
+  getRefreshToken,
+} from './client'
+
+describe('token storage helpers', () => {
+  it('stores both tokens and clears them together', () => {
+    setTokens('acc', 'ref')
+    expect(getAccessToken()).toBe('acc')
+    expect(getRefreshToken()).toBe('ref')
+    expect(localStorage.getItem(TOKEN_KEY)).toBe('acc')
+    expect(localStorage.getItem(REFRESH_TOKEN_KEY)).toBe('ref')
+
+    clearTokens()
+    expect(getAccessToken()).toBeNull()
+    expect(getRefreshToken()).toBeNull()
+  })
+})
 
 describe('apiClient', () => {
   it('is configured with the backend base URL from the environment', () => {

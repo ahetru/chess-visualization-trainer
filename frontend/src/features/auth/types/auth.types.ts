@@ -26,6 +26,16 @@ export const registerRequestSchema = z.object({
     userName: z.string().min(3, 'Username must be at least 3 characters'),
 });
 
+// --- Refresh / logout ---
+
+export interface RefreshRequest {
+    refreshToken: string;
+}
+
+export const refreshRequestSchema = z.object({
+    refreshToken: z.string().min(1),
+});
+
 // --- Auth response (login) ---
 
 export interface AuthResponse {

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
-import { TOKEN_KEY } from '../../../lib/api/client';
+import { getAccessToken, getRefreshToken, setTokens, clearTokens } from '../../../lib/api/client';
 import * as authApi from '../api/auth.api';
 import type { LoginRequest, RegisterRequest } from '../types/auth.types';
 
@@ -16,15 +16,7 @@ interface AuthState {
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
 function readToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
-}
-
-function saveToken(token: string): void {
-    localStorage.setItem(TOKEN_KEY, token);
-}
-
-function clearToken(): void {
-    localStorage.removeItem(TOKEN_KEY);
+    return getAccessToken();
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -37,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setError(null);
         try {
             const response = await authApi.login(request);
-            saveToken(response.accessToken);
+            setTokens(response.accessToken, response.refreshToken);
             setToken(response.accessToken);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Login failed';
@@ -63,9 +55,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const logout = useCallback(() => {
-        clearToken();
+        const refreshToken = getRefreshToken();
+        clearTokens();
         setToken(null);
         setError(null);
+        if (refreshToken) {
+            authApi.logout({ refreshToken }).catch(() => {
+                // Best-effort: local state is already cleared.
+            });
+        }
     }, []);
 
     const value = useMemo<AuthState>(() => ({
