@@ -60,13 +60,34 @@ export function PuzzleBoard({
 
     const handleSquareClick = useCallback(
         ({ piece, square }: SquareHandlerArgs) => {
+            if (selectedSquare) {
+                const chess = new Chess(fen);
+                const isLegalTarget = chess
+                    .moves({ square: selectedSquare as Square, verbose: true })
+                    .some((move) => move.to === square);
+
+                if (isLegalTarget) {
+                    const movedPiece = chess.get(selectedSquare as Square);
+                    handlePieceDrop({
+                        piece: {
+                            isSparePiece: false,
+                            position: selectedSquare,
+                            pieceType: movedPiece?.type ?? 'p',
+                        },
+                        sourceSquare: selectedSquare,
+                        targetSquare: square,
+                    });
+                    return;
+                }
+            }
+
             if (!piece) {
                 setSelectedSquare(null);
             } else {
                 setSelectedSquare((prev) => (prev === square ? null : square));
             }
         },
-        [],
+        [fen, selectedSquare, handlePieceDrop],
     );
 
     const options: ChessboardOptions = {

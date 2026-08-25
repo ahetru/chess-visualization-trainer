@@ -170,4 +170,31 @@ describe('PuzzleBoard', () => {
         const styles = lastOptions().squareStyles ?? {}
         expect(styles['e1'].background).toBe('var(--board-check)')
     })
+
+    it('moves a piece when a legal destination is clicked', () => {
+        const onPieceDrop = vi.fn().mockReturnValue(true)
+        render(
+            <PuzzleBoard fen={STARTING_FEN} playerColor="w" isDraggable onPieceDrop={onPieceDrop} />,
+        )
+
+        clickSquare(lastOptions(), 'e2')
+        clickSquare(lastOptions(), 'e4', null)
+
+        expect(onPieceDrop).toHaveBeenCalledWith(
+            expect.objectContaining({ sourceSquare: 'e2', targetSquare: 'e4' }),
+        )
+    })
+
+    it('does not move when a non-legal destination is clicked', () => {
+        const onPieceDrop = vi.fn()
+        render(
+            <PuzzleBoard fen={STARTING_FEN} playerColor="w" isDraggable onPieceDrop={onPieceDrop} />,
+        )
+
+        clickSquare(lastOptions(), 'e2')
+        clickSquare(lastOptions(), 'e5', null)
+
+        expect(onPieceDrop).not.toHaveBeenCalled()
+        expect(lastOptions().squareStyles).toEqual({})
+    })
 })
