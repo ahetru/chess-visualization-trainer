@@ -4,10 +4,13 @@ import com.ahetru.innerchess.user.domain.User;
 import com.ahetru.innerchess.user.dto.UserDto;
 import com.ahetru.innerchess.user.exception.DuplicateEmailException;
 import com.ahetru.innerchess.user.exception.DuplicateUserNameException;
+import com.ahetru.innerchess.user.exception.UserNotFoundException;
 import com.ahetru.innerchess.user.mapper.UserMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -37,5 +40,11 @@ public class UserService {
         User saved = userRepository.save(user);
 
         return UserMapper.toDto(saved);
+    }
+
+    public UserDto getById(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        return UserMapper.toDto(user);
     }
 }

@@ -1,10 +1,12 @@
-package com.ahetru.innerchess.chess.puzzle.exception;
+package com.ahetru.innerchess.config;
 
 import com.ahetru.innerchess.auth.exception.AccountDisabledException;
 import com.ahetru.innerchess.auth.exception.BadCredentialsException;
 import com.ahetru.innerchess.auth.exception.RefreshTokenException;
+import com.ahetru.innerchess.chess.puzzle.exception.PuzzleNotFoundException;
 import com.ahetru.innerchess.user.exception.DuplicateEmailException;
 import com.ahetru.innerchess.user.exception.DuplicateUserNameException;
+import com.ahetru.innerchess.user.exception.UserNotFoundException;
 
 import java.util.stream.Collectors;
 
@@ -66,6 +68,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleAccountDisabled(AccountDisabledException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
             .body(new ApiError(HttpStatus.FORBIDDEN.value(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiError> handleUserNotFound(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
     }
 
     public record ApiError(int status, String message) {}

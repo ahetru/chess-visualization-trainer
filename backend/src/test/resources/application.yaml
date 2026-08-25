@@ -3,3 +3,5 @@ app:
     allowed-origins: http://localhost:5173
   jwt:
     secret: dGVzdC1zZWNyZXQtZm9yLWp3dC10ZXN0aW5nLW9ubHktbm90LXVzZWQtaW4tcHJvZHVjdGlvbg==
+    access-token-ttl: 900
+    refresh-token-ttl: 604800

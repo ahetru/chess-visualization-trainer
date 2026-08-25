@@ -4,6 +4,7 @@ import com.ahetru.innerchess.user.domain.User;
 import com.ahetru.innerchess.user.dto.UserDto;
 import com.ahetru.innerchess.user.exception.DuplicateEmailException;
 import com.ahetru.innerchess.user.exception.DuplicateUserNameException;
+import com.ahetru.innerchess.user.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -79,6 +83,28 @@ class UserServiceTest {
                 () -> userService.register("bob@example.com", "secret123", "alice"));
 
         assertTrue(ex.getMessage().contains("alice"));
+    }
+
+    @Test
+    void getByIdReturnsDto() {
+        UUID id = UUID.randomUUID();
+        User user = savedUser(new User("alice@example.com", "hash", "alice", "USER", true));
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+
+        UserDto result = userService.getById(id);
+
+        assertEquals(user.getId(), result.id());
+        assertEquals("alice@example.com", result.email());
+        assertEquals("alice", result.userName());
+        assertEquals("USER", result.role());
+    }
+
+    @Test
+    void getByIdThrowsWhenNotFound() {
+        UUID id = UUID.randomUUID();
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.getById(id));
     }
 
     private User savedUser(User template) {
