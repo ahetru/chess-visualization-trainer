@@ -6,6 +6,14 @@ import type { ChessboardOptions, PieceDropHandlerArgs } from 'react-chessboard';
 
 export type GameStatus = 'playing' | 'correct' | 'incorrect' | 'solved';
 
+export interface MoveHistoryEntry {
+    san: string;
+    from: string;
+    to: string;
+    color: 'w' | 'b';
+    moveNumber: number;
+}
+
 export interface UsePuzzleGameReturn {
     /** Current board position as FEN */
     fen: string;
@@ -17,6 +25,8 @@ export interface UsePuzzleGameReturn {
     isProcessing: boolean;
     /** The player's color ('w' or 'b') */
     playerColor: 'w' | 'b';
+    /** Moves played so far (player + opponent replies), in chronological order */
+    history: MoveHistoryEntry[];
     /** Handler for react-chessboard onPieceDrop (options.onPieceDrop) */
     onPieceDrop: NonNullable<ChessboardOptions['onPieceDrop']>;
 }
@@ -60,6 +70,7 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
     const [status, setStatus] = useState<GameStatus>('playing');
     const [message, setMessage] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [history, setHistory] = useState<MoveHistoryEntry[]>([]);
 
     const onPieceDrop: NonNullable<ChessboardOptions['onPieceDrop']> = useCallback(
         (args: PieceDropHandlerArgs) => {
@@ -69,6 +80,7 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
             if (chessRef.current.turn() !== playerColor) return false;
 
             // Attempt the move locally (UX-only legality check)
+            const playerMoveNumber = chessRef.current.moveNumber();
             const moveResult = chessRef.current.move({
                 from: sourceSquare,
                 to: targetSquare,
@@ -98,7 +110,18 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
                             response.solved ? 'Puzzle solved!' : 'Correct!',
                         );
 
-                        // Apply opponent's forced reply if present
+                        const opponentColor: 'w' | 'b' =
+                            playerColor === 'w' ? 'b' : 'w';
+                        const entries: MoveHistoryEntry[] = [
+                            {
+                                san: moveResult.san,
+                                from: moveResult.from,
+                                to: moveResult.to,
+                                color: playerColor,
+                                moveNumber: playerMoveNumber,
+                            },
+                        ];
+
                         if (response.replyMove) {
                             const from = response.replyMove.slice(0, 2);
                             const to = response.replyMove.slice(2, 4);
@@ -106,14 +129,25 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
                                 response.replyMove.length > 4
                                     ? response.replyMove[4]
                                     : undefined;
-                            chessRef.current.move({
+                            const replyMoveNumber = chessRef.current.moveNumber();
+                            const replyResult = chessRef.current.move({
                                 from,
                                 to,
                                 promotion: (promotion as string) ?? 'q',
                             });
                             setFen(chessRef.current.fen());
+                            if (replyResult) {
+                                entries.push({
+                                    san: replyResult.san,
+                                    from: replyResult.from,
+                                    to: replyResult.to,
+                                    color: opponentColor,
+                                    moveNumber: replyMoveNumber,
+                                });
+                            }
                         }
 
+                        setHistory((prev) => [...prev, ...entries]);
                         moveNumberRef.current += 2;
                     } else {
                         // Incorrect — undo the move, piece snaps back
@@ -143,5 +177,5 @@ export function usePuzzleGame(puzzle: Puzzle): UsePuzzleGameReturn {
         [puzzle.id, playerColor],
     );
 
-    return { fen, status, message, isProcessing, playerColor, onPieceDrop };
+    return { fen, status, message, isProcessing, playerColor, history, onPieceDrop };
 }

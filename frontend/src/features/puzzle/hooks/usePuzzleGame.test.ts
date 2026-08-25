@@ -105,4 +105,41 @@ describe('usePuzzleGame', () => {
         });
         expect(result.current.message).toBeNull();
     });
+
+    it('records played moves in SAN with color and move number', async () => {
+        submitMoveMock
+            .mockResolvedValueOnce({ correct: true, solved: false, replyMove: 'g8f6' })
+            .mockResolvedValueOnce({ correct: true, solved: true, replyMove: null });
+
+        const { result } = renderHook(() => usePuzzleGame(basePuzzle));
+
+        act(() => {
+            drop(result.current.onPieceDrop, 'e2', 'e4');
+        });
+        await flushMicrotasks();
+
+        act(() => {
+            drop(result.current.onPieceDrop, 'd2', 'd4');
+        });
+        await flushMicrotasks();
+
+        expect(result.current.history).toEqual([
+            { san: 'e4', from: 'e2', to: 'e4', color: 'w', moveNumber: 2 },
+            { san: 'Nf6', from: 'g8', to: 'f6', color: 'b', moveNumber: 2 },
+            { san: 'd4', from: 'd2', to: 'd4', color: 'w', moveNumber: 3 },
+        ]);
+    });
+
+    it('does not record an incorrect move in history', async () => {
+        submitMoveMock.mockResolvedValueOnce({ correct: false, solved: false, replyMove: null });
+
+        const { result } = renderHook(() => usePuzzleGame(basePuzzle));
+
+        act(() => {
+            drop(result.current.onPieceDrop, 'e2', 'e4');
+        });
+        await flushMicrotasks();
+
+        expect(result.current.history).toEqual([]);
+    });
 });
