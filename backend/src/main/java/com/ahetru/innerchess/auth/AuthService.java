@@ -9,6 +9,8 @@ import com.ahetru.innerchess.user.UserRepository;
 import com.ahetru.innerchess.user.domain.User;
 import com.ahetru.innerchess.user.dto.UserDto;
 import com.ahetru.innerchess.user.mapper.UserMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -55,13 +59,18 @@ public class AuthService {
 
     private User authenticateUser(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(BadCredentialsException::new);
+                .orElseThrow(() -> {
+                    log.warn("Login failed: unknown email {}", email);
+                    return new BadCredentialsException();
+                });
 
         if (!user.isEnabled()) {
+            log.warn("Login failed: account disabled for {}", email);
             throw new AccountDisabledException();
         }
 
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            log.warn("Login failed: incorrect password for {}", email);
             throw new BadCredentialsException();
         }
 

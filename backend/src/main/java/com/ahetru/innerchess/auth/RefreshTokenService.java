@@ -6,6 +6,8 @@ import com.ahetru.innerchess.auth.exception.RefreshTokenException;
 import com.ahetru.innerchess.auth.jwt.JwtService;
 import com.ahetru.innerchess.config.JwtProperties;
 import com.ahetru.innerchess.user.domain.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,8 @@ import java.util.UUID;
 @Service
 @Transactional
 public class RefreshTokenService {
+
+    private static final Logger log = LoggerFactory.getLogger(RefreshTokenService.class);
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtService jwtService;
@@ -83,9 +87,13 @@ public class RefreshTokenService {
 
     private RefreshToken validateAndGet(String rawToken) {
         RefreshToken token = refreshTokenRepository.findByTokenHash(hashToken(rawToken))
-                .orElseThrow(() -> new RefreshTokenException("Invalid refresh token"));
+                .orElseThrow(() -> {
+                    log.warn("Refresh token rejected: unknown token");
+                    return new RefreshTokenException("Invalid refresh token");
+                });
 
         if (!token.isActive()) {
+            log.warn("Refresh token rejected: expired or revoked");
             throw new RefreshTokenException("Refresh token is expired or revoked");
         }
 
