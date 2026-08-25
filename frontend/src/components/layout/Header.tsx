@@ -32,12 +32,20 @@ export function Header() {
 
                 <div className="ml-auto flex items-center gap-2">
                     {isAuthenticated ? (
-                        <button
-                            onClick={handleLogout}
-                            className="text-[0.8125rem] text-dim hover:text-[var(--fg-strong)] transition-colors"
-                        >
-                            Log out
-                        </button>
+                        <>
+                            <Link
+                                to="/profile"
+                                className="text-[0.8125rem] text-dim hover:text-[var(--fg-strong)] transition-colors"
+                            >
+                                Profile
+                            </Link>
+                            <button
+                                onClick={handleLogout}
+                                className="text-[0.8125rem] text-dim hover:text-[var(--fg-strong)] transition-colors"
+                            >
+                                Log out
+                            </button>
+                        </>
                     ) : (
                         <>
                             <Link

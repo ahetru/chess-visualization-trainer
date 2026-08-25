@@ -5,6 +5,7 @@ import { LoginPage } from '../features/auth/components/LoginPage'
 import { RegisterPage } from '../features/auth/components/RegisterPage'
 import { RequireAuth } from '../features/auth/components/RequireAuth'
 import { PuzzlePage } from '../features/puzzle/components/PuzzlePage'
+import { ProfilePage } from '../features/user/components/ProfilePage'
 
 export function AppRouter() {
     return (
@@ -18,6 +19,14 @@ export function AppRouter() {
                     element={
                         <RequireAuth>
                             <PuzzlePage />
+                        </RequireAuth>
+                    }
+                />
+                <Route
+                    path="/profile"
+                    element={
+                        <RequireAuth>
+                            <ProfilePage />
                         </RequireAuth>
                     }
                 />

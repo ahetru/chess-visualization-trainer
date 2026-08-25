@@ -63,6 +63,16 @@ describe('AppRouter', () => {
         expect(screen.getByRole('heading', { name: /log in/i })).toBeInTheDocument()
     })
 
+    it('redirects /profile to /login when not authenticated', () => {
+        render(
+            <TestWrapper initialEntries={['/profile']}>
+                <AppRouter />
+            </TestWrapper>,
+        )
+
+        expect(screen.getByRole('heading', { name: /log in/i })).toBeInTheDocument()
+    })
+
     it('renders the login page at "/login"', () => {
         render(
             <TestWrapper initialEntries={['/login']}>
