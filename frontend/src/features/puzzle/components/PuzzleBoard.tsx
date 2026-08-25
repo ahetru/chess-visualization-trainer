@@ -8,6 +8,7 @@ interface PuzzleBoardProps {
     playerColor: 'w' | 'b';
     isDraggable: boolean;
     onPieceDrop: ChessboardOptions['onPieceDrop'];
+    lastMove?: { from: string; to: string } | null;
 }
 
 export function PuzzleBoard({
@@ -15,6 +16,7 @@ export function PuzzleBoard({
     playerColor,
     isDraggable,
     onPieceDrop,
+    lastMove,
 }: PuzzleBoardProps) {
     const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
 
@@ -22,19 +24,31 @@ export function PuzzleBoard({
         const chess = new Chess(fen);
         const styles: Record<string, React.CSSProperties> = {};
 
-        if (!selectedSquare) return styles;
+        if (lastMove) {
+            styles[lastMove.from] = { background: 'var(--board-last-move)' };
+            styles[lastMove.to] = { background: 'var(--board-last-move)' };
+        }
 
-        styles[selectedSquare] = { background: 'var(--board-highlight)' };
+        if (selectedSquare) {
+            styles[selectedSquare] = { background: 'var(--board-highlight)' };
 
-        for (const move of chess.moves({ square: selectedSquare as Square, verbose: true })) {
-            styles[move.to] = {
-                background:
-                    'radial-gradient(circle, var(--board-legal) 20%, transparent 40%)',
-            };
+            for (const move of chess.moves({ square: selectedSquare as Square, verbose: true })) {
+                styles[move.to] = {
+                    background:
+                        'radial-gradient(circle, var(--board-legal) 20%, transparent 40%)',
+                };
+            }
+        }
+
+        if (chess.inCheck()) {
+            const king = chess.findPiece({ type: 'k', color: chess.turn() })[0];
+            if (king) {
+                styles[king] = { background: 'var(--board-check)' };
+            }
         }
 
         return styles;
-    }, [fen, selectedSquare]);
+    }, [fen, selectedSquare, lastMove]);
 
     const handlePieceDrop = useCallback(
         (args: PieceDropHandlerArgs) => {

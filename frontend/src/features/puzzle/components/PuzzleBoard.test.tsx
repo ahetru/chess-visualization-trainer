@@ -144,4 +144,30 @@ describe('PuzzleBoard', () => {
         clickSquare(lastOptions(), 'e5', null)
         expect(lastOptions().squareStyles).toEqual({})
     })
+
+    it('highlights the last move squares', () => {
+        render(
+            <PuzzleBoard
+                fen={STARTING_FEN}
+                playerColor="w"
+                isDraggable
+                onPieceDrop={vi.fn()}
+                lastMove={{ from: 'e2', to: 'e4' }}
+            />,
+        )
+
+        const styles = lastOptions().squareStyles ?? {}
+        expect(styles['e2'].background).toBe('var(--board-last-move)')
+        expect(styles['e4'].background).toBe('var(--board-last-move)')
+    })
+
+    it('highlights the king when the side to move is in check', () => {
+        const checkFen = 'k3r3/8/8/8/8/8/8/4K3 w - - 0 1'
+        render(
+            <PuzzleBoard fen={checkFen} playerColor="w" isDraggable onPieceDrop={vi.fn()} />,
+        )
+
+        const styles = lastOptions().squareStyles ?? {}
+        expect(styles['e1'].background).toBe('var(--board-check)')
+    })
 })
